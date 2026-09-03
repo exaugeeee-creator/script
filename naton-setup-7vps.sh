@@ -35,7 +35,7 @@ case "$HOST" in
         WORLDS_1="$WORLD_3"
         WORLDS_2="$WORLD_4"
         ;;
-    uzm9)
+    uzmq)
         VPS_NAME="VPS 3"
         WORLDS_1="$WORLD_5"
         WORLDS_2="$WORLD_6"
@@ -62,7 +62,7 @@ case "$HOST" in
         ;;
     *)
         echo "ERROR: Unknown hostname: $HOST"
-        echo "Allowed: ui0z sbk2 uzm9 ue4v uehp uq6q tl70"
+        echo "Allowed: ui0z sbk2 uzmq ue4v uehp uq6q tl70"
         exit 1
         ;;
 esac
