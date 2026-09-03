@@ -4,10 +4,10 @@ set -euo pipefail
 # ============================================================
 # Naton Shopper - automatic setup for 4 VPS / 2 configs
 #
-# VPS 1: sgur.c.dedikouti.lt  -> world lists 1 + 2
-# VPS 2: rvsa.c.dedikouti.lt  -> world lists 3 + 4
-# VPS 3: t39e.c.dedikouti.lt  -> world lists 5 + 6
-# VPS 4: t4a4.c.dedikouti.lt  -> world lists 7 + 8
+# VPS 1: sgur.c.dedikuoti.lt  -> world lists 1 + 2
+# VPS 2: rvsa.c.dedikuoti.lt  -> world lists 3 + 4
+# VPS 3: t39e.c.dedikuoti.lt  -> world lists 5 + 6
+# VPS 4: t4a4.c.dedikuoti.lt  -> world lists 7 + 8
 #
 # The same script is used on every VPS.
 # ============================================================
@@ -28,22 +28,22 @@ WORLD_8='310,321,330,339,348,358,370,386,403,411,439,457,466,477,486,494,506,514
 
 # ---------- Select lists from hostname ----------
 case "$HOST" in
-    sgur.c.dedikouti.lt)
+    sgur.c.dedikuoti.lt)
         VPS_NAME="VPS 1"
         WORLDS_1="$WORLD_1"
         WORLDS_2="$WORLD_2"
         ;;
-    rvsa.c.dedikouti.lt)
+    rvsa.c.dedikuoti.lt)
         VPS_NAME="VPS 2"
         WORLDS_1="$WORLD_3"
         WORLDS_2="$WORLD_4"
         ;;
-    t39e.c.dedikouti.lt)
+    t39e.c.dedikuoti.lt)
         VPS_NAME="VPS 3"
         WORLDS_1="$WORLD_5"
         WORLDS_2="$WORLD_6"
         ;;
-    t4a4.c.dedikouti.lt)
+    t4a4.c.dedikuoti.lt)
         VPS_NAME="VPS 4"
         WORLDS_1="$WORLD_7"
         WORLDS_2="$WORLD_8"
@@ -51,10 +51,10 @@ case "$HOST" in
     *)
         echo "ERROR: Unknown hostname: $HOST"
         echo "Allowed hostnames:"
-        echo "  sgur.c.dedikouti.lt"
-        echo "  rvsa.c.dedikouti.lt"
-        echo "  t39e.c.dedikouti.lt"
-        echo "  t4a4.c.dedikouti.lt"
+        echo "  sgur.c.dedikuoti.lt"
+        echo "  rvsa.c.dedikuoti.lt"
+        echo "  t39e.c.dedikuoti.lt"
+        echo "  t4a4.c.dedikuoti.lt"
         exit 1
         ;;
 esac
