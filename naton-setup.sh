@@ -51,10 +51,10 @@ case "$HOST" in
     *)
         echo "ERROR: Unknown hostname: $HOST"
         echo "Allowed hostnames:"
-        echo "  sgur.c.dedikouti.lt"
-        echo "  rvsa.c.dedikouti.lt"
-        echo "  t39e.c.dedikouti.lt"
-        echo "  t4a4.c.dedikouti.lt"
+        echo "  sgur.c.dedikuoti.lt"
+        echo "  rvsa.c.dedikuoti.lt"
+        echo "  t39e.c.dedikuoti.lt"
+        echo "  t4a4.c.dedikuoti.lt"
         exit 1
         ;;
 esac
