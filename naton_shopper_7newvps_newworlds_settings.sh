@@ -56,6 +56,15 @@ if [ "$HOST" = "sxyt" ]; then
   PREFIX="vps7"
 fi
 
+# Remove old generated profile names so the UI shows only 1 and 2.
+# Keep backups before removing them.
+for old_cfg in "${PREFIX}_1.ini" "${PREFIX}_2.ini"; do
+  if [ -f "$NATON_DIR/$old_cfg" ]; then
+    cp "$NATON_DIR/$old_cfg" "$NATON_DIR/$old_cfg.bak.$(date +%Y%m%d_%H%M%S)"
+    rm -f "$NATON_DIR/$old_cfg"
+  fi
+done
+
 if [ -z "${PREFIX:-}" ]; then
   echo "ERROR: Unknown VPS hostname: $HOST"
   exit 1
@@ -141,8 +150,8 @@ DynamicWorldListConfig={"excludeListedWorlds"\:false,"hopSequential"\:false,"wor
 EOF
 }
 
-create_config "${PREFIX}_1.ini" "$WORLDS_1"
-create_config "${PREFIX}_2.ini" "$WORLDS_2"
+create_config "1.ini" "$WORLDS_1"
+create_config "2.ini" "$WORLDS_2"
 
 echo "Done: $HOST"
-echo "Created: ${PREFIX}_1.ini and ${PREFIX}_2.ini"
+echo "Created: 1.ini and 2.ini"
