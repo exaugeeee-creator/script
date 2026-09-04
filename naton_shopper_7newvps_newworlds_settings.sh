@@ -2,7 +2,7 @@
 set -e
 
 NATON_DIR="/root/.onlybot/naton-scripts/Naton Shopper/settings"
-HOST="$(hostname -f 2>/dev/null || hostname)"
+HOST="$(hostname -s 2>/dev/null || hostname)"
 HOST="$(echo "$HOST" | tr '[:upper:]' '[:lower:]' | sed 's/[[:space:]]*$//')"
 
 WORLD_1='302,320,336,352,371,406,444,472,487,505,519,547,582,614,693'
@@ -20,37 +20,37 @@ WORLD_12='314,332,348,368,403,441,466,484,501,516,544,573,611,663'
 WORLD_13='315,333,350,369,404,442,470,485,503,517,545,574,612,664'
 WORLD_14='317,334,351,370,405,443,471,486,504,518,546,575,613,668'
 
-if [ "$HOST" = "rucx.c.dedikuoti.lt" ]; then
+if [ "$HOST" = "rucx" ]; then
   WORLDS_1="$WORLD_1"
   WORLDS_2="$WORLD_2"
   PREFIX="vps1"
 fi
-if [ "$HOST" = "svwr.c.dedikuoti.lt" ]; then
+if [ "$HOST" = "svwr" ]; then
   WORLDS_1="$WORLD_3"
   WORLDS_2="$WORLD_4"
   PREFIX="vps2"
 fi
-if [ "$HOST" = "un13c.c.dedikuoti.lt" ]; then
+if [ "$HOST" = "un13c" ]; then
   WORLDS_1="$WORLD_5"
   WORLDS_2="$WORLD_6"
   PREFIX="vps3"
 fi
-if [ "$HOST" = "rsvb.c.dedikuoti.lt" ]; then
+if [ "$HOST" = "rsvb" ]; then
   WORLDS_1="$WORLD_7"
   WORLDS_2="$WORLD_8"
   PREFIX="vps4"
 fi
-if [ "$HOST" = "un11.c.dedikuoti.lt" ]; then
+if [ "$HOST" = "un11" ]; then
   WORLDS_1="$WORLD_9"
   WORLDS_2="$WORLD_10"
   PREFIX="vps5"
 fi
-if [ "$HOST" = "sxyr.c.dedikuoti.lt" ]; then
+if [ "$HOST" = "sxyr" ]; then
   WORLDS_1="$WORLD_11"
   WORLDS_2="$WORLD_12"
   PREFIX="vps6"
 fi
-if [ "$HOST" = "sxyt.c.dedikuoti.lt" ]; then
+if [ "$HOST" = "sxyt" ]; then
   WORLDS_1="$WORLD_13"
   WORLDS_2="$WORLD_14"
   PREFIX="vps7"
