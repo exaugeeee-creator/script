@@ -30,12 +30,12 @@ if [ "$HOST" = "svwr" ]; then
   WORLDS_2="$WORLD_4"
   PREFIX="vps2"
 fi
-if [ "$HOST" = "un13c" ]; then
+if [ "$HOST" = "un13" ]; then
   WORLDS_1="$WORLD_5"
   WORLDS_2="$WORLD_6"
   PREFIX="vps3"
 fi
-if [ "$HOST" = "rsvb" ]; then
+if [ "$HOST" = "rvsb" ]; then
   WORLDS_1="$WORLD_7"
   WORLDS_2="$WORLD_8"
   PREFIX="vps4"
