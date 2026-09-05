@@ -1,133 +1,134 @@
 #!/bin/bash
-set -e
+set -euo pipefail
+
+# Naton Shopper - automatic setup for 7 VPS / 2 configs each
+# New world list: 145 worlds, sorted ascending and split evenly across 14 configs.
+# Uses short hostname for reliable VPS detection.
 
 NATON_DIR="/root/.onlybot/naton-scripts/Naton Shopper/settings"
 HOST="$(hostname -s 2>/dev/null || hostname)"
-HOST="$(echo "$HOST" | tr '[:upper:]' '[:lower:]' | sed 's/[[:space:]]*$//')"
 
-WORLD_1='302,320,336,352,371,406,444,472,487,505,519,547,582,614,693'
-WORLD_2='303,321,337,354,374,407,445,473,488,506,520,550,596,615,694'
-WORLD_3='304,322,338,355,375,408,446,474,489,507,521,551,597,619,695'
-WORLD_4='305,323,339,356,376,409,457,475,490,508,522,556,599,620,699'
-WORLD_5='306,324,340,357,377,410,458,476,491,509,523,557,600,621,700'
-WORLD_6='307,325,341,358,378,411,459,477,492,510,524,559,601,622'
-WORLD_7='309,327,342,359,385,421,461,478,493,511,525,562,602,624'
-WORLD_8='310,328,343,360,386,422,462,479,494,512,538,563,603,625'
-WORLD_9='311,329,344,362,394,438,463,480,495,513,541,564,604,626'
-WORLD_10='312,330,346,365,395,439,464,481,496,514,542,566,609,661'
-WORLD_11='313,331,347,367,402,440,465,482,500,515,543,567,610,662'
-WORLD_12='314,332,348,368,403,441,466,484,501,516,544,573,611,663'
-WORLD_13='315,333,350,369,404,442,470,485,503,517,545,574,612,664'
-WORLD_14='317,334,351,370,405,443,471,486,504,518,546,575,613,668'
+# ---------- World lists ----------
+WORLD_1='302,303,304,306,307,309,310,311,312,313,315'
+WORLD_2='317,320,323,324,325,327,328,331,332,333,334'
+WORLD_3='336,338,339,340,341,342,343,344,347,348,350'
+WORLD_4='351,352,355,356,357,358,359,360,365,367,368'
+WORLD_5='371,374,375,376,378,395,405,406,407,408,409'
+WORLD_6='410,411,421,422,438,439,440,441,442,443'
+WORLD_7='444,445,446,457,458,459,461,462,463,464'
+WORLD_8='465,466,500,501,503,504,505,506,507,508'
+WORLD_9='509,510,511,512,513,514,515,516,517,518'
+WORLD_10='519,520,521,522,523,524,525,538,541,542'
+WORLD_11='543,544,545,546,547,550,551,556,557,559'
+WORLD_12='562,563,564,566,567,582,599,600,601,602'
+WORLD_13='603,604,609,619,620,621,622,624,625,626'
+WORLD_14='661,662,663,664,668,693,694,695,699,700'
 
-if [ "$HOST" = "rucx" ]; then
-  WORLDS_1="$WORLD_1"
-  WORLDS_2="$WORLD_2"
-  PREFIX="vps1"
-fi
-if [ "$HOST" = "svwr" ]; then
-  WORLDS_1="$WORLD_3"
-  WORLDS_2="$WORLD_4"
-  PREFIX="vps2"
-fi
-if [ "$HOST" = "un13" ]; then
-  WORLDS_1="$WORLD_5"
-  WORLDS_2="$WORLD_6"
-  PREFIX="vps3"
-fi
-if [ "$HOST" = "rvsb" ]; then
-  WORLDS_1="$WORLD_7"
-  WORLDS_2="$WORLD_8"
-  PREFIX="vps4"
-fi
-if [ "$HOST" = "un11" ]; then
-  WORLDS_1="$WORLD_9"
-  WORLDS_2="$WORLD_10"
-  PREFIX="vps5"
-fi
-if [ "$HOST" = "sxyr" ]; then
-  WORLDS_1="$WORLD_11"
-  WORLDS_2="$WORLD_12"
-  PREFIX="vps6"
-fi
-if [ "$HOST" = "sxyt" ]; then
-  WORLDS_1="$WORLD_13"
-  WORLDS_2="$WORLD_14"
-  PREFIX="vps7"
-fi
+# ---------- Select lists from hostname ----------
+case "$HOST" in
+    ui0z)
+        VPS_NAME="VPS 1"
+        WORLDS_1="$WORLD_1"
+        WORLDS_2="$WORLD_2"
+        ;;
+    sbk2)
+        VPS_NAME="VPS 2"
+        WORLDS_1="$WORLD_3"
+        WORLDS_2="$WORLD_4"
+        ;;
+    uzmq)
+        VPS_NAME="VPS 3"
+        WORLDS_1="$WORLD_5"
+        WORLDS_2="$WORLD_6"
+        ;;
+    ue4v)
+        VPS_NAME="VPS 4"
+        WORLDS_1="$WORLD_7"
+        WORLDS_2="$WORLD_8"
+        ;;
+    uehp)
+        VPS_NAME="VPS 5"
+        WORLDS_1="$WORLD_9"
+        WORLDS_2="$WORLD_10"
+        ;;
+    uq6q)
+        VPS_NAME="VPS 6"
+        WORLDS_1="$WORLD_11"
+        WORLDS_2="$WORLD_12"
+        ;;
+    tl70)
+        VPS_NAME="VPS 7"
+        WORLDS_1="$WORLD_13"
+        WORLDS_2="$WORLD_14"
+        ;;
+    *)
+        echo "ERROR: Unknown hostname: $HOST"
+        echo "Allowed: ui0z sbk2 uzmq ue4v uehp uq6q tl70"
+        exit 1
+        ;;
+esac
 
-# Remove old generated profile names so the UI shows only 1 and 2.
-# Keep backups before removing them.
-for old_cfg in "${PREFIX}_1.ini" "${PREFIX}_2.ini"; do
-  if [ -f "$NATON_DIR/$old_cfg" ]; then
-    cp "$NATON_DIR/$old_cfg" "$NATON_DIR/$old_cfg.bak.$(date +%Y%m%d_%H%M%S)"
-    rm -f "$NATON_DIR/$old_cfg"
-  fi
-done
-
-if [ -z "${PREFIX:-}" ]; then
-  echo "ERROR: Unknown VPS hostname: $HOST"
-  exit 1
-fi
+mkdir -p "$NATON_DIR"
 
 create_config() {
-  local cfg="$1"
-  local worlds="$2"
-  local target="$NATON_DIR/$cfg"
+    local file="$1"
+    local worlds="$2"
 
-  mkdir -p "$NATON_DIR"
+    if [[ -f "$file" ]]; then
+        cp -a "$file" "${file}.backup.$(date +%Y%m%d-%H%M%S)"
+        echo "Backup created for $file"
+    fi
 
-  if [ -f "$target" ]; then
-    cp "$target" "$target.bak.$(date +%Y%m%d_%H%M%S)"
-  fi
-
-  cat > "$target" <<EOF
-AcceptAidConfig={"configureAcceptAid"\:false,"disableAcceptAid"\:false}
-AutoBondConfig={"price"\:{"gpToAdd"\:0,"staticPrice"\:0,"percentToAdd"\:0.0,"osbuddy"\:false,"runelite"\:false,"useStaticPrice"\:false,"runelitePriceType"\:"AVERAGE","arrowKeyAdjustment"\:2,"useArrowkeyPrice"\:true,"relistPolicy"\:{"nextPrice"\:{"gpToAdd"\:0,"staticPrice"\:0,"percentToAdd"\:0.0,"osbuddy"\:false,"runelite"\:false,"useStaticPrice"\:false,"runelitePriceType"\:"AVERAGE","arrowKeyAdjustment"\:3,"useArrowkeyPrice"\:true,"relistPolicy"\:{"nextPrice"\:{"gpToAdd"\:0,"staticPrice"\:0,"percentToAdd"\:0.0,"osbuddy"\:false,"runelite"\:false,"useStaticPrice"\:false,"runelitePriceType"\:"AVERAGE","arrowKeyAdjustment"\:4,"useArrowkeyPrice"\:true},"timeUnit"\:"MINUTES","range"\:{"max"\:10,"min"\:5,"lowerPlayerRandomization"\:-20.0,"type"\:"UNIFORM","upperPlayerRandomization"\:20.0}}},"timeUnit"\:"MINUTES","range"\:{"max"\:10,"min"\:5,"lowerPlayerRandomization"\:-20.0,"type"\:"UNIFORM","upperPlayerRandomization"\:20.0}}},"rebondDays"\:2,"cancelPendingBuyOffersForGold"\:false,"use"\:true,"obtainGoldFromMuleIfOut"\:false}
+    cat > "$file" <<EOF
+#Naton Shopper Settings
+#Sat Sep 05 13:11:52 EEST 2026
+AcceptAidConfig={"disableAcceptAid"\:false,"configureAcceptAid"\:false}
+AutoBondConfig={"price"\:{"useArrowkeyPrice"\:true,"percentToAdd"\:0.0,"osbuddy"\:false,"runelite"\:false,"useStaticPrice"\:false,"gpToAdd"\:0,"runelitePriceType"\:"AVERAGE","arrowKeyAdjustment"\:2,"staticPrice"\:0,"relistPolicy"\:{"nextPrice"\:{"useArrowkeyPrice"\:true,"percentToAdd"\:0.0,"osbuddy"\:false,"runelite"\:false,"useStaticPrice"\:false,"gpToAdd"\:0,"runelitePriceType"\:"AVERAGE","arrowKeyAdjustment"\:3,"staticPrice"\:0,"relistPolicy"\:{"nextPrice"\:{"useArrowkeyPrice"\:true,"percentToAdd"\:0.0,"osbuddy"\:false,"runelite"\:false,"useStaticPrice"\:false,"gpToAdd"\:0,"runelitePriceType"\:"AVERAGE","arrowKeyAdjustment"\:4,"staticPrice"\:0},"range"\:{"max"\:10,"min"\:5,"type"\:"UNIFORM","upperPlayerRandomization"\:20.0,"lowerPlayerRandomization"\:-20.0},"timeUnit"\:"MINUTES"}},"range"\:{"max"\:10,"min"\:5,"type"\:"UNIFORM","upperPlayerRandomization"\:20.0,"lowerPlayerRandomization"\:-20.0},"timeUnit"\:"MINUTES"}},"obtainGoldFromMuleIfOut"\:false,"rebondDays"\:2,"cancelPendingBuyOffersForGold"\:false,"use"\:true}
 BankScrollConfig={"scrollMethod"\:"DEFAULT"}
-CameraAngleConfig={"cameraAngleMin"\:70,"cameraAngleMax"\:100,"keepCameraAngleInRange"\:false}
-CameraRotationConfig={"keepCameraRotationInRange"\:false,"cameraRotationMin"\:360,"cameraRotationMax"\:100}
-CameraZoomConfig={"frequency"\:{"max"\:40,"min"\:15,"type"\:"UNIFORM"},"zoom"\:{"max"\:80,"avg"\:70,"min"\:50,"sd"\:8,"type"\:"NORMAL"},"enabled"\:false,"frequencyTimeUnit"\:"MINUTES"}
-ChatHandlerConfig={"keyOptions"\:true,"loopSleep"\:{"max"\:125,"min"\:100,"lowerPlayerRandomization"\:-20.0,"type"\:"UNIFORM","upperPlayerRandomization"\:20.0},"keyContinue"\:true,"holdSpace"\:false,"beforeOption"\:{"max"\:5000,"avg"\:550,"min"\:180,"sd"\:192,"lowerPlayerRandomization"\:-20.0,"type"\:"NORMAL","upperPlayerRandomization"\:20.0},"beforeContinue"\:{"max"\:5000,"avg"\:420,"min"\:100,"sd"\:182,"lowerPlayerRandomization"\:-20.0,"type"\:"NORMAL","upperPlayerRandomization"\:20.0}}
-ChatModeConfig={"clanChatMode"\:"ON","configureTradeChat"\:false,"tradeChatMode"\:"ON","configureGameChat"\:false,"publicChatMode"\:"ON","privateChatMode"\:"ALL","configureChannelChat"\:false,"channelChatMode"\:"ON","configureClanChat"\:false,"gameChatMode"\:"ALL","configurePrivateChat"\:false,"configurePublicChat"\:false}
-DaxWalkerConfig={"enableSeed"\:false,"enableTeleporting"\:true,"useDentistWalker"\:false}
-DiscordWebhookConfig={"sendOnFrequencyMinutes"\:60,"useWebooks"\:false,"sendOnDeath"\:false,"sendOnStart"\:false,"sendOnEnd"\:false,"sendOnInaccessible"\:false,"webhookUrl"\:"","sendOnLevel"\:false,"sendOnAntiPk"\:false,"sendOnFrequency"\:false}
-DiscordWebhookOnAntiPkMessageConfig={"includeImage"\:true,"customMessage"\:"Anti-PK triggered in world ${world} at ${position}\!"}
-DiscordWebhookOnDeathMessageConfig={"includeImage"\:true,"customMessage"\:"${username} has died\!"}
-DiscordWebhookOnEndMessageConfig={"includeImage"\:true,"customMessage"\:"Script Ending ${script-name}\\nRuntime\: ${script-runtime}\\nStop Reason\: ${stop-reason}"}
-DiscordWebhookOnFrequencyMessageConfig={"includeImage"\:true,"customMessage"\:"Script Running ${script-name}\\nRuntime\: ${script-runtime}"}
-DiscordWebhookOnInaccessibleMessageConfig={"includeImage"\:true,"customMessage"\:"Account Inaccessible\: ${username} is ${inaccessible-type}"}
-DiscordWebhookOnLevelMessageConfig={"includeImage"\:true,"customMessage"\:"${username} has leveled ${gained-skill-type} to ${gained-skill-level}"}
-DiscordWebhookOnStartMessageConfig={"includeImage"\:true,"customMessage"\:"Script Starting ${script-name}"}
+CameraAngleConfig={"keepCameraAngleInRange"\:false,"cameraAngleMin"\:70,"cameraAngleMax"\:100}
+CameraRotationConfig={"cameraRotationMax"\:100,"keepCameraRotationInRange"\:false,"cameraRotationMin"\:360}
+CameraZoomConfig={"frequencyTimeUnit"\:"MINUTES","frequency"\:{"max"\:40,"min"\:15,"type"\:"UNIFORM"},"zoom"\:{"min"\:50,"max"\:80,"sd"\:8,"avg"\:70,"type"\:"NORMAL"},"enabled"\:false}
+ChatHandlerConfig={"holdSpace"\:false,"keyContinue"\:true,"loopSleep"\:{"max"\:125,"min"\:100,"type"\:"UNIFORM","upperPlayerRandomization"\:20.0,"lowerPlayerRandomization"\:-20.0},"beforeOption"\:{"min"\:180,"max"\:5000,"sd"\:192,"avg"\:550,"type"\:"NORMAL","upperPlayerRandomization"\:20.0,"lowerPlayerRandomization"\:-20.0},"keyOptions"\:true,"beforeContinue"\:{"min"\:100,"max"\:5000,"sd"\:182,"avg"\:420,"type"\:"NORMAL","upperPlayerRandomization"\:20.0,"lowerPlayerRandomization"\:-20.0}}
+ChatModeConfig={"tradeChatMode"\:"ON","configurePrivateChat"\:false,"configureTradeChat"\:false,"gameChatMode"\:"ALL","configureChannelChat"\:false,"channelChatMode"\:"ON","configureGameChat"\:false,"configureClanChat"\:false,"clanChatMode"\:"ON","privateChatMode"\:"ALL","configurePublicChat"\:false,"publicChatMode"\:"ON"}
+DaxWalkerConfig={"enableSeed"\:false,"useDentistWalker"\:false,"enableTeleporting"\:true}
+DiscordWebhookConfig={"sendOnDeath"\:false,"sendOnEnd"\:false,"sendOnAntiPk"\:false,"sendOnLevel"\:false,"sendOnFrequencyMinutes"\:60,"sendOnFrequency"\:false,"webhookUrl"\:"","sendOnStart"\:false,"sendOnInaccessible"\:false,"useWebooks"\:false}
+DiscordWebhookOnAntiPkMessageConfig={"customMessage"\:"Anti-PK triggered in world  at \!","includeImage"\:true}
+DiscordWebhookOnDeathMessageConfig={"customMessage"\:" has died\!","includeImage"\:true}
+DiscordWebhookOnEndMessageConfig={"customMessage"\:"Script Ending name\\nRuntime\: runtime\\nStop Reason\: reason","includeImage"\:true}
+DiscordWebhookOnFrequencyMessageConfig={"customMessage"\:"Script Running name\\nRuntime\: runtime","includeImage"\:true}
+DiscordWebhookOnInaccessibleMessageConfig={"customMessage"\:"Account Inaccessible\:  is type","includeImage"\:true}
+DiscordWebhookOnLevelMessageConfig={"customMessage"\:" has leveled skill-type to skill-level","includeImage"\:true}
+DiscordWebhookOnStartMessageConfig={"customMessage"\:"Script Starting name","includeImage"\:true}
 DynamicAntibanConfig={"alwaysHover"\:false,"timedActions"\:["CHECK_EXP","RANDOM_RIGHT_CLICK","MOVE_MOUSE","ROTATE_CAMERA","PICK_UP_MOUSE","MOUSE_LEAVE_GAME","EXAMINE_ENTITY","CHECK_TABS"],"reactionTimeScale"\:20.0,"useReactionTimes"\:false}
 DynamicClientStateConfig={"openOnEnd"\:false,"hideOnStart"\:false}
-DynamicControlsConfig={"mouseSpeedMin"\:100,"mouseSpeedMax"\:100,"cameraType"\:"CLIENT_CAMERA_ANTIBAN","customMouseSpeed"\:false}
+DynamicControlsConfig={"cameraType"\:"CLIENT_CAMERA_ANTIBAN","mouseSpeedMax"\:100,"mouseSpeedMin"\:100,"customMouseSpeed"\:false}
 DynamicOptionalFailsafeConfig={"adjustCameraZoom"\:false,"removeRoofs"\:false}
-DynamicPrefZoomConfig={"usePrefZoom"\:false,"maxPrefZoom"\:50,"minPrefZoom"\:50}
-DynamicSoundMuteConfig={"disableSoundsInGame"\:false,"disableSoundsLoginScreen"\:false}
+DynamicPrefZoomConfig={"maxPrefZoom"\:50,"usePrefZoom"\:false,"minPrefZoom"\:50}
+DynamicSoundMuteConfig={"disableSoundsLoginScreen"\:false,"disableSoundsInGame"\:false}
 DynamicStuckFailsafeConfig={"enabled"\:true}
-DynamicTimeBasedHoppingConfig={"min"\:0,"max"\:0,"timeBasedHopping"\:false,"sd"\:0,"average"\:0}
-DynamicWorldHopPlayersConfig={"maxPlayersInRange"\:0,"hopPlayerTalks"\:false,"onlyHopAtWorkArea"\:true,"playerSearchRange"\:0,"hopPlayersInRange"\:false}
-FkeyConfig={"useFkeys"\:false,"overrideFkeySetting"\:false}
+DynamicTimeBasedHoppingConfig={"max"\:0,"min"\:0,"sd"\:0,"timeBasedHopping"\:false,"average"\:0}
+DynamicWorldHopPlayersConfig={"maxPlayersInRange"\:0,"hopPlayersInRange"\:false,"hopPlayerTalks"\:false,"playerSearchRange"\:0,"onlyHopAtWorkArea"\:true}
+DynamicWorldListConfig={"excludeListedWorlds"\:false,"minSecondsPerWorld"\:0,"hopRandom"\:false,"hopSequential"\:false,"worlds"\:[$worlds]}
+FkeyConfig={"overrideFkeySetting"\:false,"useFkeys"\:false}
 LogoutOnEndConfig={"logoutOnEnd"\:false}
-LogoutThumbsUpConfig={"thumbsUpChance"\:50,"enableClickingThumbsOnLogout"\:false,"onlyClickIfXHoursSince"\:false,"xHoursSince"\:6,"thumbsDownChance"\:50}
-LoopSleepConfig={"overrideLoopSleep"\:false,"loopSleepRange"\:{"max"\:65,"min"\:45,"lowerPlayerRandomization"\:-20.0,"type"\:"UNIFORM","upperPlayerRandomization"\:20.0}}
-MaxExchangeActionLengthConfig={"timeUnit"\:"MINUTES","range"\:{"max"\:60,"min"\:20,"lowerPlayerRandomization"\:-20.0,"type"\:"UNIFORM","upperPlayerRandomization"\:20.0}}
-ResizableConfig={"resizableType"\:"RESIZABLE_MODERN","configureResizable"\:false}
-ScreenshotOnEndConfig={"onlyAfterXMinutes"\:false,"screenshot"\:false,"xMinutes"\:60}
-SleepModifierConfig={"modifier"\:{"max"\:105,"min"\:95,"type"\:"UNIFORM"},"enable"\:false}
+LogoutThumbsUpConfig={"thumbsDownChance"\:50,"thumbsUpChance"\:50,"onlyClickIfXHoursSince"\:false,"enableClickingThumbsOnLogout"\:false,"xHoursSince"\:6}
+LoopSleepConfig={"overrideLoopSleep"\:false,"loopSleepRange"\:{"max"\:65,"min"\:45,"type"\:"UNIFORM","upperPlayerRandomization"\:20.0,"lowerPlayerRandomization"\:-20.0}}
+MaxExchangeActionLengthConfig={"timeUnit"\:"MINUTES","range"\:{"max"\:60,"min"\:20,"type"\:"UNIFORM","upperPlayerRandomization"\:20.0,"lowerPlayerRandomization"\:-20.0}}
+ResizableConfig={"configureResizable"\:false,"resizableType"\:"RESIZABLE_MODERN"}
+ScreenshotOnEndConfig={"onlyAfterXMinutes"\:false,"xMinutes"\:60,"screenshot"\:false}
+SleepModifierConfig={"enable"\:false,"modifier"\:{"max"\:105,"min"\:95,"type"\:"UNIFORM"}}
 cashIn=false
 cashInAmount=0
-customBuyPrices={"21352"\:{"gpToAdd"\:0,"staticPrice"\:800,"percentToAdd"\:0.0,"osbuddy"\:false,"runelite"\:false,"useStaticPrice"\:true,"runelitePriceType"\:"AVERAGE","arrowKeyAdjustment"\:0,"useArrowkeyPrice"\:false},"1517"\:{"gpToAdd"\:0,"staticPrice"\:25,"percentToAdd"\:0.0,"osbuddy"\:false,"runelite"\:false,"useStaticPrice"\:true,"runelitePriceType"\:"AVERAGE","arrowKeyAdjustment"\:0,"useArrowkeyPrice"\:false},"21326"\:{"gpToAdd"\:0,"staticPrice"\:200,"percentToAdd"\:0.0,"osbuddy"\:false,"runelite"\:false,"useStaticPrice"\:true,"runelitePriceType"\:"AVERAGE","arrowKeyAdjustment"\:0,"useArrowkeyPrice"\:false},"1393"\:{"gpToAdd"\:0,"staticPrice"\:9050,"percentToAdd"\:0.0,"osbuddy"\:false,"runelite"\:false,"useStaticPrice"\:true,"runelitePriceType"\:"AVERAGE","arrowKeyAdjustment"\:0,"useArrowkeyPrice"\:false},"851"\:{"gpToAdd"\:0,"staticPrice"\:320,"percentToAdd"\:0.0,"osbuddy"\:false,"runelite"\:false,"useStaticPrice"\:true,"runelitePriceType"\:"AVERAGE","arrowKeyAdjustment"\:0,"useArrowkeyPrice"\:false},"11093"\:{"gpToAdd"\:0,"staticPrice"\:2080,"percentToAdd"\:0.0,"osbuddy"\:false,"runelite"\:false,"useStaticPrice"\:true,"runelitePriceType"\:"AVERAGE","arrowKeyAdjustment"\:0,"useArrowkeyPrice"\:false},"1397"\:{"gpToAdd"\:0,"staticPrice"\:9050,"percentToAdd"\:0.0,"osbuddy"\:false,"runelite"\:false,"useStaticPrice"\:true,"runelitePriceType"\:"AVERAGE","arrowKeyAdjustment"\:0,"useArrowkeyPrice"\:false},"2358"\:{"gpToAdd"\:0,"staticPrice"\:110,"percentToAdd"\:0.0,"osbuddy"\:false,"runelite"\:false,"useStaticPrice"\:true,"runelitePriceType"\:"AVERAGE","arrowKeyAdjustment"\:0,"useArrowkeyPrice"\:false},"1654"\:{"gpToAdd"\:0,"staticPrice"\:190,"percentToAdd"\:0.0,"osbuddy"\:false,"runelite"\:false,"useStaticPrice"\:true,"runelitePriceType"\:"AVERAGE","arrowKeyAdjustment"\:0,"useArrowkeyPrice"\:false},"1399"\:{"gpToAdd"\:0,"staticPrice"\:9050,"percentToAdd"\:0.0,"osbuddy"\:false,"runelite"\:false,"useStaticPrice"\:true,"runelitePriceType"\:"AVERAGE","arrowKeyAdjustment"\:0,"useArrowkeyPrice"\:false},"855"\:{"gpToAdd"\:0,"staticPrice"\:600,"percentToAdd"\:0.0,"osbuddy"\:false,"runelite"\:false,"useStaticPrice"\:true,"runelitePriceType"\:"AVERAGE","arrowKeyAdjustment"\:0,"useArrowkeyPrice"\:false},"1656"\:{"gpToAdd"\:0,"staticPrice"\:530,"percentToAdd"\:0.0,"osbuddy"\:false,"runelite"\:false,"useStaticPrice"\:true,"runelitePriceType"\:"AVERAGE","arrowKeyAdjustment"\:0,"useArrowkeyPrice"\:false},"1658"\:{"gpToAdd"\:0,"staticPrice"\:750,"percentToAdd"\:0.0,"osbuddy"\:false,"runelite"\:false,"useStaticPrice"\:true,"runelitePriceType"\:"AVERAGE","arrowKeyAdjustment"\:0,"useArrowkeyPrice"\:false},"859"\:{"gpToAdd"\:0,"staticPrice"\:1250,"percentToAdd"\:0.0,"osbuddy"\:false,"runelite"\:false,"useStaticPrice"\:true,"runelitePriceType"\:"AVERAGE","arrowKeyAdjustment"\:0,"useArrowkeyPrice"\:false},"19580"\:{"gpToAdd"\:0,"staticPrice"\:500,"percentToAdd"\:0.0,"osbuddy"\:false,"runelite"\:false,"useStaticPrice"\:true,"runelitePriceType"\:"AVERAGE","arrowKeyAdjustment"\:0,"useArrowkeyPrice"\:false},"9244"\:{"gpToAdd"\:0,"staticPrice"\:460,"percentToAdd"\:0.0,"osbuddy"\:false,"runelite"\:false,"useStaticPrice"\:true,"runelitePriceType"\:"AVERAGE","arrowKeyAdjustment"\:0,"useArrowkeyPrice"\:false},"892"\:{"gpToAdd"\:0,"staticPrice"\:150,"percentToAdd"\:0.0,"osbuddy"\:false,"runelite"\:false,"useStaticPrice"\:true,"runelitePriceType"\:"AVERAGE","arrowKeyAdjustment"\:0,"useArrowkeyPrice"\:false},"1660"\:{"gpToAdd"\:0,"staticPrice"\:1200,"percentToAdd"\:0.0,"osbuddy"\:false,"runelite"\:false,"useStaticPrice"\:true,"runelitePriceType"\:"AVERAGE","arrowKeyAdjustment"\:0,"useArrowkeyPrice"\:false},"9245"\:{"gpToAdd"\:0,"staticPrice"\:8750,"percentToAdd"\:0.0,"osbuddy"\:false,"runelite"\:false,"useStaticPrice"\:true,"runelitePriceType"\:"AVERAGE","arrowKeyAdjustment"\:0,"useArrowkeyPrice"\:false},"19582"\:{"gpToAdd"\:0,"staticPrice"\:1000,"percentToAdd"\:0.0,"osbuddy"\:false,"runelite"\:false,"useStaticPrice"\:true,"runelitePriceType"\:"AVERAGE","arrowKeyAdjustment"\:0,"useArrowkeyPrice"\:false},"830"\:{"gpToAdd"\:0,"staticPrice"\:195,"percentToAdd"\:0.0,"osbuddy"\:false,"runelite"\:false,"useStaticPrice"\:true,"runelitePriceType"\:"AVERAGE","arrowKeyAdjustment"\:0,"useArrowkeyPrice"\:false},"62"\:{"gpToAdd"\:0,"staticPrice"\:120,"percentToAdd"\:0.0,"osbuddy"\:false,"runelite"\:false,"useStaticPrice"\:true,"runelitePriceType"\:"AVERAGE","arrowKeyAdjustment"\:0,"useArrowkeyPrice"\:false},"28991"\:{"gpToAdd"\:0,"staticPrice"\:195,"percentToAdd"\:0.0,"osbuddy"\:false,"runelite"\:false,"useStaticPrice"\:true,"runelitePriceType"\:"AVERAGE","arrowKeyAdjustment"\:0,"useArrowkeyPrice"\:false}}
+customBuyPrices={"21352"\:{"useArrowkeyPrice"\:false,"percentToAdd"\:0.0,"osbuddy"\:false,"runelite"\:false,"useStaticPrice"\:true,"gpToAdd"\:0,"runelitePriceType"\:"AVERAGE","arrowKeyAdjustment"\:0,"staticPrice"\:800},"1517"\:{"useArrowkeyPrice"\:false,"percentToAdd"\:0.0,"osbuddy"\:false,"runelite"\:false,"useStaticPrice"\:true,"gpToAdd"\:0,"runelitePriceType"\:"AVERAGE","arrowKeyAdjustment"\:0,"staticPrice"\:25},"21326"\:{"useArrowkeyPrice"\:false,"percentToAdd"\:0.0,"osbuddy"\:false,"runelite"\:false,"useStaticPrice"\:true,"gpToAdd"\:0,"runelitePriceType"\:"AVERAGE","arrowKeyAdjustment"\:0,"staticPrice"\:200},"1393"\:{"useArrowkeyPrice"\:false,"percentToAdd"\:0.0,"osbuddy"\:false,"runelite"\:false,"useStaticPrice"\:true,"gpToAdd"\:0,"runelitePriceType"\:"AVERAGE","arrowKeyAdjustment"\:0,"staticPrice"\:9050},"851"\:{"useArrowkeyPrice"\:false,"percentToAdd"\:0.0,"osbuddy"\:false,"runelite"\:false,"useStaticPrice"\:true,"gpToAdd"\:0,"runelitePriceType"\:"AVERAGE","arrowKeyAdjustment"\:0,"staticPrice"\:320},"11093"\:{"useArrowkeyPrice"\:false,"percentToAdd"\:0.0,"osbuddy"\:false,"runelite"\:false,"useStaticPrice"\:true,"gpToAdd"\:0,"runelitePriceType"\:"AVERAGE","arrowKeyAdjustment"\:0,"staticPrice"\:2080},"1397"\:{"useArrowkeyPrice"\:false,"percentToAdd"\:0.0,"osbuddy"\:false,"runelite"\:false,"useStaticPrice"\:true,"gpToAdd"\:0,"runelitePriceType"\:"AVERAGE","arrowKeyAdjustment"\:0,"staticPrice"\:9050},"2358"\:{"useArrowkeyPrice"\:false,"percentToAdd"\:0.0,"osbuddy"\:false,"runelite"\:false,"useStaticPrice"\:true,"gpToAdd"\:0,"runelitePriceType"\:"AVERAGE","arrowKeyAdjustment"\:0,"staticPrice"\:110},"1654"\:{"useArrowkeyPrice"\:false,"percentToAdd"\:0.0,"osbuddy"\:false,"runelite"\:false,"useStaticPrice"\:true,"gpToAdd"\:0,"runelitePriceType"\:"AVERAGE","arrowKeyAdjustment"\:0,"staticPrice"\:190},"1399"\:{"useArrowkeyPrice"\:false,"percentToAdd"\:0.0,"osbuddy"\:false,"runelite"\:false,"useStaticPrice"\:true,"gpToAdd"\:0,"runelitePriceType"\:"AVERAGE","arrowKeyAdjustment"\:0,"staticPrice"\:9050},"855"\:{"useArrowkeyPrice"\:false,"percentToAdd"\:0.0,"osbuddy"\:false,"runelite"\:false,"useStaticPrice"\:true,"gpToAdd"\:0,"runelitePriceType"\:"AVERAGE","arrowKeyAdjustment"\:0,"staticPrice"\:600},"1656"\:{"useArrowkeyPrice"\:false,"percentToAdd"\:0.0,"osbuddy"\:false,"runelite"\:false,"useStaticPrice"\:true,"gpToAdd"\:0,"runelitePriceType"\:"AVERAGE","arrowKeyAdjustment"\:0,"staticPrice"\:530},"1658"\:{"useArrowkeyPrice"\:false,"percentToAdd"\:0.0,"osbuddy"\:false,"runelite"\:false,"useStaticPrice"\:true,"gpToAdd"\:0,"runelitePriceType"\:"AVERAGE","arrowKeyAdjustment"\:0,"staticPrice"\:750},"859"\:{"useArrowkeyPrice"\:false,"percentToAdd"\:0.0,"osbuddy"\:false,"runelite"\:false,"useStaticPrice"\:true,"gpToAdd"\:0,"runelitePriceType"\:"AVERAGE","arrowKeyAdjustment"\:0,"staticPrice"\:1250},"19580"\:{"useArrowkeyPrice"\:false,"percentToAdd"\:0.0,"osbuddy"\:false,"runelite"\:false,"useStaticPrice"\:true,"gpToAdd"\:0,"runelitePriceType"\:"AVERAGE","arrowKeyAdjustment"\:0,"staticPrice"\:500},"9244"\:{"useArrowkeyPrice"\:false,"percentToAdd"\:0.0,"osbuddy"\:false,"runelite"\:false,"useStaticPrice"\:true,"gpToAdd"\:0,"runelitePriceType"\:"AVERAGE","arrowKeyAdjustment"\:0,"staticPrice"\:460},"892"\:{"useArrowkeyPrice"\:false,"percentToAdd"\:0.0,"osbuddy"\:false,"runelite"\:false,"useStaticPrice"\:true,"gpToAdd"\:0,"runelitePriceType"\:"AVERAGE","arrowKeyAdjustment"\:0,"staticPrice"\:150},"1660"\:{"useArrowkeyPrice"\:false,"percentToAdd"\:0.0,"osbuddy"\:false,"runelite"\:false,"useStaticPrice"\:true,"gpToAdd"\:0,"runelitePriceType"\:"AVERAGE","arrowKeyAdjustment"\:0,"staticPrice"\:1200},"9245"\:{"useArrowkeyPrice"\:false,"percentToAdd"\:0.0,"osbuddy"\:false,"runelite"\:false,"useStaticPrice"\:true,"gpToAdd"\:0,"runelitePriceType"\:"AVERAGE","arrowKeyAdjustment"\:0,"staticPrice"\:8750},"19582"\:{"useArrowkeyPrice"\:false,"percentToAdd"\:0.0,"osbuddy"\:false,"runelite"\:false,"useStaticPrice"\:true,"gpToAdd"\:0,"runelitePriceType"\:"AVERAGE","arrowKeyAdjustment"\:0,"staticPrice"\:1000},"830"\:{"useArrowkeyPrice"\:false,"percentToAdd"\:0.0,"osbuddy"\:false,"runelite"\:false,"useStaticPrice"\:true,"gpToAdd"\:0,"runelitePriceType"\:"AVERAGE","arrowKeyAdjustment"\:0,"staticPrice"\:195},"62"\:{"useArrowkeyPrice"\:false,"percentToAdd"\:0.0,"osbuddy"\:false,"runelite"\:false,"useStaticPrice"\:true,"gpToAdd"\:0,"runelitePriceType"\:"AVERAGE","arrowKeyAdjustment"\:0,"staticPrice"\:120},"28991"\:{"useArrowkeyPrice"\:false,"percentToAdd"\:0.0,"osbuddy"\:false,"runelite"\:false,"useStaticPrice"\:true,"gpToAdd"\:0,"runelitePriceType"\:"AVERAGE","arrowKeyAdjustment"\:0,"staticPrice"\:195}}
 customSellPrices={}
-defaultBuyPrice={"gpToAdd"\:0,"staticPrice"\:0,"percentToAdd"\:0.0,"osbuddy"\:false,"runelite"\:false,"useStaticPrice"\:false,"runelitePriceType"\:"AVERAGE","arrowKeyAdjustment"\:2,"useArrowkeyPrice"\:true}
-defaultSellPrice={"gpToAdd"\:0,"staticPrice"\:0,"percentToAdd"\:0.0,"osbuddy"\:false,"runelite"\:false,"useStaticPrice"\:false,"runelitePriceType"\:"AVERAGE","arrowKeyAdjustment"\:-2,"useArrowkeyPrice"\:true}
+defaultBuyPrice={"useArrowkeyPrice"\:true,"percentToAdd"\:0.0,"osbuddy"\:false,"runelite"\:false,"useStaticPrice"\:false,"gpToAdd"\:0,"runelitePriceType"\:"AVERAGE","arrowKeyAdjustment"\:2,"staticPrice"\:0}
+defaultSellPrice={"useArrowkeyPrice"\:true,"percentToAdd"\:0.0,"osbuddy"\:false,"runelite"\:false,"useStaticPrice"\:false,"gpToAdd"\:0,"runelitePriceType"\:"AVERAGE","arrowKeyAdjustment"\:-2,"staticPrice"\:0}
 enableGERestocking=true
 equipBankTeleport=false
 equipShopTeleport=false
 fastOpenPacks=false
 hopWhenEmpty=true
-items=[{"itemId"\:9245,"quantity"\:1000,"shopStockLimit"\:1,"transactionType"\:"SELL"},{"itemId"\:1399,"quantity"\:1000,"shopStockLimit"\:1,"transactionType"\:"SELL"},{"itemId"\:1393,"quantity"\:1000,"shopStockLimit"\:1,"transactionType"\:"SELL"},{"itemId"\:1397,"quantity"\:1000,"shopStockLimit"\:1,"transactionType"\:"SELL"},{"itemId"\:859,"quantity"\:5000,"shopStockLimit"\:5,"transactionType"\:"SELL"},{"itemId"\:19582,"quantity"\:5000,"shopStockLimit"\:5,"transactionType"\:"SELL"},{"itemId"\:19580,"quantity"\:5000,"shopStockLimit"\:5,"transactionType"\:"SELL"},{"itemId"\:21352,"quantity"\:5000,"shopStockLimit"\:5,"transactionType"\:"SELL"},{"itemId"\:31973,"quantity"\:4000,"shopStockLimit"\:4,"transactionType"\:"SELL"},{"itemId"\:9244,"quantity"\:7000,"shopStockLimit"\:7,"transactionType"\:"SELL"},{"itemId"\:62,"quantity"\:7000,"shopStockLimit"\:7,"transactionType"\:"SELL"},{"itemId"\:21326,"quantity"\:7000,"shopStockLimit"\:7,"transactionType"\:"SELL"},{"itemId"\:31004,"quantity"\:7000,"shopStockLimit"\:7,"transactionType"\:"SELL"},{"itemId"\:28991,"quantity"\:10000,"shopStockLimit"\:7,"transactionType"\:"SELL"},{"itemId"\:830,"quantity"\:5000,"shopStockLimit"\:5,"transactionType"\:"SELL"},{"itemId"\:2357,"quantity"\:5000,"shopStockLimit"\:5,"transactionType"\:"SELL"},{"itemId"\:1654,"quantity"\:7000,"shopStockLimit"\:7,"transactionType"\:"SELL"},{"itemId"\:892,"quantity"\:10000,"shopStockLimit"\:10,"transactionType"\:"SELL"},{"itemId"\:1517,"quantity"\:10000,"shopStockLimit"\:10,"transactionType"\:"SELL"},{"itemId"\:855,"quantity"\:5000,"shopStockLimit"\:5,"transactionType"\:"SELL"},{"itemId"\:851,"quantity"\:5000,"shopStockLimit"\:5,"transactionType"\:"SELL"},{"itemId"\:1656,"quantity"\:3000,"shopStockLimit"\:3,"transactionType"\:"SELL"},{"itemId"\:1660,"quantity"\:3000,"shopStockLimit"\:3,"transactionType"\:"SELL"},{"itemId"\:1658,"quantity"\:3000,"shopStockLimit"\:3,"transactionType"\:"SELL"},{"itemId"\:11092,"quantity"\:2000,"shopStockLimit"\:2,"transactionType"\:"SELL"}]
+items=[{"itemId"\:9245,"transactionType"\:"SELL","quantity"\:1000,"shopStockLimit"\:1},{"itemId"\:1399,"transactionType"\:"SELL","quantity"\:1000,"shopStockLimit"\:1},{"itemId"\:1393,"transactionType"\:"SELL","quantity"\:1000,"shopStockLimit"\:1},{"itemId"\:1397,"transactionType"\:"SELL","quantity"\:1000,"shopStockLimit"\:1},{"itemId"\:859,"transactionType"\:"SELL","quantity"\:5000,"shopStockLimit"\:5},{"itemId"\:19582,"transactionType"\:"SELL","quantity"\:5000,"shopStockLimit"\:5},{"itemId"\:19580,"transactionType"\:"SELL","quantity"\:5000,"shopStockLimit"\:5},{"itemId"\:21352,"transactionType"\:"SELL","quantity"\:5000,"shopStockLimit"\:5},{"itemId"\:31973,"transactionType"\:"SELL","quantity"\:4000,"shopStockLimit"\:4},{"itemId"\:9244,"transactionType"\:"SELL","quantity"\:7000,"shopStockLimit"\:7},{"itemId"\:62,"transactionType"\:"SELL","quantity"\:7000,"shopStockLimit"\:7},{"itemId"\:21326,"transactionType"\:"SELL","quantity"\:7000,"shopStockLimit"\:7},{"itemId"\:31004,"transactionType"\:"SELL","quantity"\:7000,"shopStockLimit"\:7},{"itemId"\:28991,"transactionType"\:"SELL","quantity"\:10000,"shopStockLimit"\:7},{"itemId"\:830,"transactionType"\:"SELL","quantity"\:5000,"shopStockLimit"\:5},{"itemId"\:2357,"transactionType"\:"SELL","quantity"\:5000,"shopStockLimit"\:5},{"itemId"\:1654,"transactionType"\:"SELL","quantity"\:7000,"shopStockLimit"\:7},{"itemId"\:892,"transactionType"\:"SELL","quantity"\:10000,"shopStockLimit"\:10},{"itemId"\:1517,"transactionType"\:"SELL","quantity"\:10000,"shopStockLimit"\:10},{"itemId"\:855,"transactionType"\:"SELL","quantity"\:5000,"shopStockLimit"\:5},{"itemId"\:851,"transactionType"\:"SELL","quantity"\:5000,"shopStockLimit"\:5},{"itemId"\:1656,"transactionType"\:"SELL","quantity"\:3000,"shopStockLimit"\:3},{"itemId"\:1660,"transactionType"\:"SELL","quantity"\:3000,"shopStockLimit"\:3},{"itemId"\:1658,"transactionType"\:"SELL","quantity"\:3000,"shopStockLimit"\:3},{"itemId"\:11092,"transactionType"\:"SELL","quantity"\:2000,"shopStockLimit"\:2}]
 mule=false
 muleAddress=127.0.0.1
 muleForCoinsOnRestock=false
@@ -136,22 +137,35 @@ muleGoldTargetOnRestock=0
 muleID=1
 muleIfOver=1000000
 muleThreshold=false
-napiMiniBreak={"breakLengthRange"\:{"max"\:277,"avg"\:116,"min"\:59,"sd"\:29,"lowerPlayerRandomization"\:-20.0,"type"\:"NORMAL","upperPlayerRandomization"\:20.0},"miniBreaking"\:false,"breakFrequencyRange"\:{"max"\:2882,"avg"\:2655,"min"\:744,"sd"\:531,"lowerPlayerRandomization"\:-20.0,"type"\:"NORMAL","upperPlayerRandomization"\:20.0}}
-napiRandomAfk={"frequencyRange"\:{"max"\:2409,"avg"\:1189,"min"\:362,"sd"\:237,"lowerPlayerRandomization"\:-20.0,"type"\:"NORMAL","upperPlayerRandomization"\:20.0},"afkLengthRange"\:{"max"\:308,"avg"\:274,"min"\:195,"sd"\:68,"lowerPlayerRandomization"\:-20.0,"type"\:"NORMAL","upperPlayerRandomization"\:20.0},"mouseOffScreenChance"\:"ALWAYS","randomAfking"\:false}
+napiMiniBreak={"miniBreaking"\:false,"breakFrequencyRange"\:{"min"\:744,"max"\:2882,"sd"\:531,"avg"\:2655,"type"\:"NORMAL","upperPlayerRandomization"\:20.0,"lowerPlayerRandomization"\:-20.0},"breakLengthRange"\:{"min"\:59,"max"\:277,"sd"\:29,"avg"\:116,"type"\:"NORMAL","upperPlayerRandomization"\:20.0,"lowerPlayerRandomization"\:-20.0}}
+napiRandomAfk={"frequencyRange"\:{"min"\:362,"max"\:2409,"sd"\:237,"avg"\:1189,"type"\:"NORMAL","upperPlayerRandomization"\:20.0,"lowerPlayerRandomization"\:-20.0},"afkLengthRange"\:{"min"\:195,"max"\:308,"sd"\:68,"avg"\:274,"type"\:"NORMAL","upperPlayerRandomization"\:20.0,"lowerPlayerRandomization"\:-20.0},"mouseOffScreenChance"\:"ALWAYS","randomAfking"\:false}
 progressionEntries=[]
 repeatProgression=false
-repeatWhenDone=true
-selectedShopTile={"y"\:3148,"z"\:0,"x"\:2905}
+repeatWhenDone=false
+restockOnStart=true
+selectedShopTile={"x"\:2905,"y"\:3148,"z"\:0}
 settingsVersion=0
 shopNpcName=shop keeper
 stopConditionExp={"allMatch"\:false,"conditions"\:[]}
 useProgressiveMode=false
-DynamicWorldListConfig={"excludeListedWorlds"\:false,"hopSequential"\:false,"worlds"\:[$worlds]}
 EOF
+    chmod 644 "$file"
 }
 
-create_config "1.ini" "$WORLDS_1"
-create_config "2.ini" "$WORLDS_2"
+create_config "$NATON_DIR/1.ini" "$WORLDS_1"
+create_config "$NATON_DIR/2.ini" "$WORLDS_2"
 
-echo "Done: $HOST"
-echo "Created: 1.ini and 2.ini"
+echo "=========================================="
+echo " Naton setup completed"
+echo " Host: $HOST"
+echo " VPS:  $VPS_NAME"
+echo "=========================================="
+
+echo "1.ini:"
+grep '^DynamicWorldListConfig=' "$NATON_DIR/1.ini"
+
+echo "2.ini:"
+grep '^DynamicWorldListConfig=' "$NATON_DIR/2.ini"
+
+echo "Files:"
+ls -lh "$NATON_DIR/1.ini" "$NATON_DIR/2.ini"
