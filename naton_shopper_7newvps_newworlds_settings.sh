@@ -26,44 +26,44 @@ WORLD_14='661,662,663,664,668,693,694,695,699,700'
 
 # ---------- Select lists from hostname ----------
 case "$HOST" in
-    ui0z)
+    rucx)
         VPS_NAME="VPS 1"
         WORLDS_1="$WORLD_1"
         WORLDS_2="$WORLD_2"
         ;;
-    sbk2)
+    svwr)
         VPS_NAME="VPS 2"
         WORLDS_1="$WORLD_3"
         WORLDS_2="$WORLD_4"
         ;;
-    uzmq)
+    un13)
         VPS_NAME="VPS 3"
         WORLDS_1="$WORLD_5"
         WORLDS_2="$WORLD_6"
         ;;
-    ue4v)
+    rvsb)
         VPS_NAME="VPS 4"
         WORLDS_1="$WORLD_7"
         WORLDS_2="$WORLD_8"
         ;;
-    uehp)
+    un11)
         VPS_NAME="VPS 5"
         WORLDS_1="$WORLD_9"
         WORLDS_2="$WORLD_10"
         ;;
-    uq6q)
+    sxyr)
         VPS_NAME="VPS 6"
         WORLDS_1="$WORLD_11"
         WORLDS_2="$WORLD_12"
         ;;
-    tl70)
+    sxyt)
         VPS_NAME="VPS 7"
         WORLDS_1="$WORLD_13"
         WORLDS_2="$WORLD_14"
         ;;
     *)
         echo "ERROR: Unknown hostname: $HOST"
-        echo "Allowed: ui0z sbk2 uzmq ue4v uehp uq6q tl70"
+        echo "Allowed: rucx svwr un13 rvsb un11 sxyr sxyt"
         exit 1
         ;;
 esac
