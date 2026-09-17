@@ -2,59 +2,112 @@
 set -euo pipefail
 
 # ============================================================
-# Naton Shopper - automatic setup for 4 VPS / 2 configs
+# Naton Shopper - automatic setup for 9 VPS / 2 configs each
 #
-# VPS 1: sgur.c.dedikuoti.lt  -> world lists 1 + 2
-# VPS 2: rvsa.c.dedikuoti.lt  -> world lists 3 + 4
-# VPS 3: t39e.c.dedikuoti.lt  -> world lists 5 + 6
-# VPS 4: t4a4.c.dedikuoti.lt  -> world lists 7 + 8
-#
-# The same script is used on every VPS.
+# IMPORTANT:
+# - VPS 1-4 hostnames are the original hostnames.
+# - VPS 5-9 are ready; enter their hostnames in the section below.
+# - Worlds use the NEW world list and are split in consecutive order.
+# - The script creates 1.ini and 2.ini on every VPS.
 # ============================================================
 
-NATON_DIR="/root/.onlybot/naton-scripts/Naton Shopper/settings"
+# ---------- VPS HOSTNAMES ----------
+# The first 4 hostnames are the existing VPS and are kept unchanged.
+# When the 5 new VPS are ready, only fill HOST_VPS5 ... HOST_VPS9.
+HOST_VPS1="sgur.c.dedikuoti.lt"
+HOST_VPS2="rvsa.c.dedikuoti.lt"
+HOST_VPS3="t39e.c.dedikuoti.lt"
+HOST_VPS4="t4a4.c.dedikuoti.lt"
 
+HOST_VPS5=""
+HOST_VPS6=""
+HOST_VPS7=""
+HOST_VPS8=""
+HOST_VPS9=""
+
+NATON_DIR="/root/.onlybot/naton-scripts/Naton Shopper/settings"
 HOST="$(hostname -f 2>/dev/null || hostname)"
 
 # ---------- World lists ----------
-WORLD_1='302,303,304,306,307,309,310,311,312,313,315,317,320,323,324,325,327,328,331'
-WORLD_2='332,333,334,336,338,339,340,341,342,343,344,347,348,350,351,352,355,356'
-WORLD_3='357,358,359,360,365,367,368,371,374,375,376,378,395,405,406,407,408,409'
-WORLD_4='410,411,421,422,438,439,440,441,442,443,444,445,446,457,458,459,461,462'
-WORLD_5='463,464,465,466,500,501,503,504,505,506,507,508,509,510,511,512,513,514'
-WORLD_6='515,516,517,518,519,520,521,522,523,524,525,538,541,542,543,544,545,546'
-WORLD_7='547,550,551,556,557,559,562,563,564,566,567,582,599,600,601,602,603,604'
-WORLD_8='609,619,620,621,622,624,625,626,661,662,663,664,668,693,694,695,699,700'
+WORLD_1='302,303,304,305,306,307,309,310,311,312,313,314,315'
+WORLD_2='317,320,321,322,323,324,325,327,328,329,330,331,332'
+WORLD_3='333,334,336,337,338,339,340,341,342,343,344,346'
+WORLD_4='347,348,350,351,352,354,355,356,357,358,359,360'
+WORLD_5='362,365,367,368,369,370,371,374,375,376,377,378'
+WORLD_6='385,386,387,388,389,390,394,395,402,403,404,405'
+WORLD_7='406,407,408,409,410,411,412,421,422,424,425,426'
+WORLD_8='438,439,440,441,442,443,444,445,446,457,458,459'
+WORLD_9='461,462,463,464,465,466,470,471,472,473,474,475'
+WORLD_10='476,477,478,479,480,481,482,484,485,486,487,488'
+WORLD_11='489,490,491,492,493,494,495,496,500,501,503,504'
+WORLD_12='505,506,507,508,509,510,511,512,513,514,515,516'
+WORLD_13='517,518,519,520,521,522,523,524,525,531,532,533'
+WORLD_14='534,535,536,538,541,542,543,544,545,546,547,550'
+WORLD_15='551,556,557,559,562,563,564,566,567,569,573,574'
+WORLD_16='575,582,590,591,596,597,599,600,601,602,603,604'
+WORLD_17='609,610,611,612,613,614,615,619,620,621,622,624'
+WORLD_18='625,626,661,662,663,664,668,693,694,695,699,700'
 
 # ---------- Select lists from hostname ----------
 case "$HOST" in
-    sgur.c.dedikuoti.lt)
+    "$HOST_VPS1")
         VPS_NAME="VPS 1"
         WORLDS_1="$WORLD_1"
         WORLDS_2="$WORLD_2"
         ;;
-    rvsa.c.dedikuoti.lt)
+    "$HOST_VPS2")
         VPS_NAME="VPS 2"
         WORLDS_1="$WORLD_3"
         WORLDS_2="$WORLD_4"
         ;;
-    t39e.c.dedikuoti.lt)
+    "$HOST_VPS3")
         VPS_NAME="VPS 3"
         WORLDS_1="$WORLD_5"
         WORLDS_2="$WORLD_6"
         ;;
-    t4a4.c.dedikuoti.lt)
+    "$HOST_VPS4")
         VPS_NAME="VPS 4"
         WORLDS_1="$WORLD_7"
         WORLDS_2="$WORLD_8"
         ;;
+    "$HOST_VPS5")
+        VPS_NAME="VPS 5"
+        WORLDS_1="$WORLD_9"
+        WORLDS_2="$WORLD_10"
+        ;;
+    "$HOST_VPS6")
+        VPS_NAME="VPS 6"
+        WORLDS_1="$WORLD_11"
+        WORLDS_2="$WORLD_12"
+        ;;
+    "$HOST_VPS7")
+        VPS_NAME="VPS 7"
+        WORLDS_1="$WORLD_13"
+        WORLDS_2="$WORLD_14"
+        ;;
+    "$HOST_VPS8")
+        VPS_NAME="VPS 8"
+        WORLDS_1="$WORLD_15"
+        WORLDS_2="$WORLD_16"
+        ;;
+    "$HOST_VPS9")
+        VPS_NAME="VPS 9"
+        WORLDS_1="$WORLD_17"
+        WORLDS_2="$WORLD_18"
+        ;;
     *)
         echo "ERROR: Unknown hostname: $HOST"
-        echo "Allowed hostnames:"
-        echo "  sgur.c.dedikuoti.lt"
-        echo "  rvsa.c.dedikuoti.lt"
-        echo "  t39e.c.dedikuoti.lt"
-        echo "  t4a4.c.dedikuoti.lt"
+        echo
+        echo "Configured hostnames:"
+        echo "  VPS 1: $HOST_VPS1"
+        echo "  VPS 2: $HOST_VPS2"
+        echo "  VPS 3: $HOST_VPS3"
+        echo "  VPS 4: $HOST_VPS4"
+        echo "  VPS 5: $HOST_VPS5"
+        echo "  VPS 6: $HOST_VPS6"
+        echo "  VPS 7: $HOST_VPS7"
+        echo "  VPS 8: $HOST_VPS8"
+        echo "  VPS 9: $HOST_VPS9"
         exit 1
         ;;
 esac
@@ -102,7 +155,7 @@ DynamicSoundMuteConfig={"disableSoundsInGame"\:false,"disableSoundsLoginScreen"\
 DynamicStuckFailsafeConfig={"enabled"\:true}
 DynamicTimeBasedHoppingConfig={"min"\:0,"max"\:0,"timeBasedHopping"\:false,"sd"\:0,"average"\:0}
 DynamicWorldHopPlayersConfig={"maxPlayersInRange"\:0,"hopPlayerTalks"\:false,"onlyHopAtWorkArea"\:true,"playerSearchRange"\:0,"hopPlayersInRange"\:false}
-DynamicWorldListConfig={"excludeListedWorlds"\:false,"hopSequential"\:false,"worlds":[$worlds]}
+DynamicWorldListConfig={"worlds"\:[$worlds],"excludeListedWorlds"\:false,"hopSequential"\:true,"hopRandom"\:false,"minSecondsPerWorld"\:0}
 FkeyConfig={"useFkeys"\:false,"overrideFkeySetting"\:false}
 LogoutOnEndConfig={"logoutOnEnd"\:false}
 LogoutThumbsUpConfig={"thumbsUpChance"\:50,"enableClickingThumbsOnLogout"\:false,"onlyClickIfXHoursSince"\:false,"xHoursSince"\:6,"thumbsDownChance"\:50}
@@ -111,6 +164,7 @@ MaxExchangeActionLengthConfig={"timeUnit"\:"MINUTES","range"\:{"max"\:90,"min"\:
 ResizableConfig={"resizableType"\:"RESIZABLE_MODERN","configureResizable"\:false}
 ScreenshotOnEndConfig={"onlyAfterXMinutes"\:false,"screenshot"\:false,"xMinutes"\:60}
 SleepModifierConfig={"modifier"\:{"max"\:105,"min"\:95,"type"\:"UNIFORM"},"enable"\:false}
+buyBatch=BATCHES_OF_5
 cashIn=false
 cashInAmount=0
 customBuyPrices={}
@@ -131,11 +185,13 @@ muleGoldTargetOnRestock=0
 muleID=1
 muleIfOver=1000000
 muleThreshold=false
+muleTripOnThreshold=true
 napiMiniBreak={"breakLengthRange"\:{"max"\:280,"avg"\:242,"min"\:162,"sd"\:60,"lowerPlayerRandomization"\:-20.0,"type"\:"NORMAL","upperPlayerRandomization"\:20.0},"miniBreaking"\:false,"breakFrequencyRange"\:{"max"\:2145,"avg"\:1841,"min"\:473,"sd"\:368,"lowerPlayerRandomization"\:-20.0,"type"\:"NORMAL","upperPlayerRandomization"\:20.0}}
 napiRandomAfk={"frequencyRange"\:{"max"\:2759,"avg"\:2126,"min"\:509,"sd"\:425,"lowerPlayerRandomization"\:-20.0,"type"\:"NORMAL","upperPlayerRandomization"\:20.0},"afkLengthRange"\:{"max"\:327,"avg"\:70,"min"\:36,"sd"\:17,"lowerPlayerRandomization"\:-20.0,"type"\:"NORMAL","upperPlayerRandomization"\:20.0},"mouseOffScreenChance"\:"ALWAYS","randomAfking"\:false}
 progressionEntries=[]
 repeatProgression=false
 repeatWhenDone=false
+restockOnStart=true
 selectedShopTile={"y"\:5148,"z"\:0,"x"\:2465}
 settingsVersion=0
 shopNpcName=TzHaar-Hur-Lek
