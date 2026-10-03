@@ -20,7 +20,7 @@ HOST_VPS3="t39e.c.dedikuoti.lt"
 HOST_VPS4="t4a4.c.dedikuoti.lt"
 
 HOST_VPS5="w8e6.c.dedikuoti.lt"
-HOST_VPS6=""
+HOST_VPS6="w8xe.c.dedikuoti.lt"
 HOST_VPS7=""
 HOST_VPS8=""
 HOST_VPS9=""
