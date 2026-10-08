@@ -22,7 +22,7 @@ HOST_VPS4="t4a4.c.dedikuoti.lt"
 HOST_VPS5="w8e6.c.dedikuoti.lt"
 HOST_VPS6="w8xe.c.dedikuoti.lt"
 HOST_VPS7="w8cy.c.dedikuoti.lt"
-HOST_VPS8=""
+HOST_VPS8="w8x8.c.dedikuoti.lt"
 HOST_VPS9=""
 
 NATON_DIR="/root/.onlybot/naton-scripts/Naton Shopper/settings"
